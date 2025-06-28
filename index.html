@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EcoHéroes - Login</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="login/login.css" />
+  <link rel="stylesheet" href="roles.css" />
+</head>
+<body>
+  <div class="login-card">
+    <h1 id="loginTitle">🌿 EcoHéroes</h1>
+
+
+    <label for="codigoInput">Código de partida:</label>
+    <input type="text" id="codigoInput" placeholder="COD" />
+
+    <input type="text" id="username" placeholder="Nombre del héroe" />
+
+    
+    <label for="userRole">Selecciona tu rol:</label>
+    <select id="userRole">
+      <option value="estudiante">Estudiante</option>
+      <option value="profesor">Profesor</option>
+    </select>
+
+    <h3>Elige tu avatar:</h3>
+    <div class="avatar-selector">
+      <img src="assets/1.png" alt="Avatar 1" data-avatar="assets/1.png" />
+      <img src="assets/2.png" alt="Avatar 2" data-avatar="assets/2.png" />
+    </div>
+
+    <button id="startBtn">¡Comenzar!</button>
+  </div>
+
+  <script src="login/login.js"></script>
+</body>
+</html>

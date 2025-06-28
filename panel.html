@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Panel de Resultados - EcoHéroes</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f8f5;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2e7d32;
+    }
+
+    .frase-profe {
+      text-align: center;
+      color: #388e3c;
+      font-style: italic;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    .podio-destacado {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin: 2rem auto;
+      flex-wrap: wrap;
+    }
+
+    .card-top3 {
+      background: #e8f5e9;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      width: 160px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      animation: entrar 0.8s ease-in-out;
+    }
+
+    .card-top3 .avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 30%;
+    }
+
+    .medalla {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    @keyframes entrar {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .codigo {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 0.5rem;
+    }
+
+    #contador {
+      text-align: center;
+      margin-top: 0.5rem;
+      font-weight: bold;
+      color: #555;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+    }
+
+    th, td {
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    th {
+      background-color: #a5d6a7;
+    }
+
+    tr:nth-child(even) {
+      background-color: #e8f5e9;
+    }
+
+    .resumen {
+      text-align: center;
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #2e7d32;
+    }
+
+    .acciones {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    button {
+      padding: 0.6rem 1.5rem;
+      background-color: #388e3c;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 Resultados de la Partida</h1>
+  <p class="codigo">Código de partida: <span id="codigoPartida"></span></p>
+  <blockquote id="fraseProfe" class="frase-profe"></blockquote>
+  <div class="podio-destacado" id="podioTop"></div>
+  <p id="contador">Jugadores registrados: 0</p>
+
+  <table id="tablaResultados">
+    <thead>
+      <tr>
+        <th>🏅</th>
+        <th>Nombre</th>
+        <th>Rol</th>
+        <th>Aciertos</th>
+        <th>Errores</th>
+        <th>Puntos</th>
+        <th>Tiempo (seg)</th>
+        <th>Jugó el</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="resumenGeneral" class="resumen"></div>
+
+  <div class="acciones">
+    <button id="recargar">🔄 Actualizar</button>
+    <button id="cerrarSesion">Cerrar sesión</button>
+  </div>
+
+  <script>
+    const codigo = localStorage.getItem('codigoPartida') || 'Desconocido';
+    document.getElementById('codigoPartida').textContent = codigo;
+
+    const frases = [
+      "Educar es sembrar futuro 🌱",
+      "Cada estudiante es una semilla con potencial 🌻",
+      "Los pequeños héroes de hoy son los líderes del mañana 🌍"
+    ];
+    document.getElementById('fraseProfe').textContent = frases[Math.floor(Math.random() * frases.length)];
+
+    const tbody = document.querySelector('#tablaResultados tbody');
+    const contador = document.getElementById('contador');
+
+    function cargarResultados() {
+      fetch(`http://localhost:5000/api/users?codigo_partida=${codigo}`)
+        .then(res => res.json())
+        .then(usuarios => {
+          tbody.innerHTML = '';
+          contador.textContent = `Jugadores registrados: ${usuarios.length}`;
+
+          const podio = document.getElementById('podioTop');
+          podio.innerHTML = '';
+          const top3 = usuarios.slice(0, 3);
+          top3.forEach((u, i) => {
+            const div = document.createElement('div');
+            div.className = 'card-top3';
+            div.innerHTML = `
+              <div class="medalla">${['🥇','🥈','🥉'][i]}</div>
+              <img src="${u.avatar}" class="avatar" alt="avatar">
+              <h3>${u.nombre}</h3>
+              <p>${u.puntos} puntos</p>
+            `;
+            podio.appendChild(div);
+          });
+
+          if (usuarios.length === 0) {
+            const fila = document.createElement('tr');
+            fila.innerHTML = `<td colspan="8">No hay resultados aún.</td>`;
+            tbody.appendChild(fila);
+            document.getElementById('resumenGeneral').textContent = '';
+            return;
+          }
+
+          usuarios.forEach((u, index) => {
+            const fila = document.createElement('tr');
+            const medalla = ['🥇','🥈','🥉'][index] || '';
+            const fecha = new Date(u.createdAt).toLocaleString('es-ES', {
+              day: '2-digit', month: '2-digit', year: '2-digit',
+              hour: '2-digit', minute: '2-digit'
+            });
+            fila.innerHTML = `
+              <td>${medalla}</td>
+              <td>${u.nombre}</td>
+              <td>${u.rol}</td>
+              <td>${u.aciertos}</td>
+              <td>${u.errores}</td>
+              <td>${u.puntos}</td>
+              <td>${u.tiempo_segundos}</td>
+              <td>${fecha}</td>
+            `;
+            tbody.appendChild(fila);
+          });
+
+          const promedio = Math.round(usuarios.reduce((acc, u) => acc + u.puntos, 0) / usuarios.length);
+          document.getElementById('resumenGeneral').innerHTML =
+            `🌟 Promedio general de puntos: <strong>${promedio}</strong>`;
+        })
+        .catch(err => {
+          console.error('❌ Error al cargar resultados:', err);
+          alert('No se pudieron cargar los resultados.');
+        });
+    }
+
+    document.getElementById('recargar').addEventListener('click', cargarResultados);
+    document.getElementById('cerrarSesion').addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    });
+
+    cargarResultados();
+    setInterval(cargarResultados, 30000);
+  </script>
+</body>
+</html>

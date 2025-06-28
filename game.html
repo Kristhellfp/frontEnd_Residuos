@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EcoHéroes: Juego</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="hero-info">
+      <img id="avatar" src="" alt="Avatar del jugador" />
+      <span id="username"></span>
+      <div id="lives">❤️❤️❤️</div>
+    </div>
+    <div id="score">Puntos: 0</div>
+  </header>
+
+  <main>
+    <div id="bins">
+      <div class="bin-wrapper">
+        <div class="label">🌿 Orgánico</div>
+        <div class="bin" data-type="organico"></div>
+      </div>
+      <div class="bin-wrapper">
+        <div class="label">♻️ Reciclable</div>
+        <div class="bin" data-type="reciclable"></div>
+      </div>
+      <div class="bin-wrapper">
+        <div class="label">🚫 No Reciclable</div>
+        <div class="bin" data-type="no-reciclable"></div>
+      </div>
+    </div>
+
+    <div id="items"></div>
+    <div id="feedback"></div>
+  </main>
+
+  <script>
+    // Verificar si el usuario es profesor y redirigir
+    const userRole = localStorage.getItem("userRole");
+    if (userRole === "profesor") {
+      window.location.href = "panel.html";
+    }
+  </script>
+
+  <script src="game.js"></script>
+</body>
+</html>

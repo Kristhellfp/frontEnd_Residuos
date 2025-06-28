@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Selecciona tu rol - EcoHéroes</title>
+  <link rel="stylesheet" href="login/roles.css" />
+</head>
+<body class="role-body">
+  <div class="role-container">
+    <h1>🌿 ¡Bienvenido a EcoHéroes!</h1>
+    <p>Selecciona tu personaje para comenzar tu aventura ecológica</p>
+
+    <div class="role-options">
+      <div class="role-card" onclick="selectRole('alumno')">
+        <div class="icon">👦</div>
+        <h2>Alumno</h2>
+        <p>Aprende y juega con misiones ecológicas</p>
+      </div>
+
+      <div class="role-card" onclick="selectRole('profesor')">
+        <div class="icon">👩‍🏫</div>
+        <h2>Profesor</h2>
+        <p>Supervisa el progreso de tus alumnos</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function selectRole(role) {
+      localStorage.setItem('userRole', role);
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

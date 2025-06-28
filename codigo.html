@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>EcoHéroes - Código de Partida</title>
+  <link rel="stylesheet" href="login/login.css" />
+</head>
+<body>
+  <div class="login-card">
+    <h1>🔐 Ingreso a la partida</h1>
+    <p>Introduce el código entregado por el profesor</p>
+    
+    <input type="text" id="codigoInput" placeholder="Código de partida" />
+    <button id="validarBtn">Validar código</button>
+    
+    <p id="mensaje" style="color: red; display: none;"></p>
+  </div>
+
+  <script>
+    document.getElementById('validarBtn').addEventListener('click', async () => {
+      const codigo = document.getElementById('codigoInput').value.trim();
+      const mensaje = document.getElementById('mensaje');
+
+      if (!codigo) {
+        mensaje.textContent = 'Por favor ingresa un código válido.';
+        mensaje.style.display = 'block';
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/partidas/${codigo}`);
+        const data = await res.json();
+
+        if (res.ok && data.activa) {
+          localStorage.setItem('codigoPartida', codigo);
+          window.location.href = 'index.html';
+        } else {
+          mensaje.textContent = '⚠️ Código inválido o inactivo.';
+          mensaje.style.display = 'block';
+        }
+      } catch (error) {
+        mensaje.textContent = '❌ Error al validar código.';
+        mensaje.style.display = 'block';
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
