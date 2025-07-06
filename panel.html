@@ -160,10 +160,18 @@
     const tbody = document.querySelector('#tablaResultados tbody');
     const contador = document.getElementById('contador');
 
+    function ajustarPuntaje(puntos) {
+      const num = Number(puntos);
+      if (isNaN(num)) return 0;
+      return num === 50 ? 100 : num;
+    }
+
     function cargarResultados() {
       fetch(`http://localhost:5000/api/users?codigo_partida=${codigo}`)
         .then(res => res.json())
         .then(usuarios => {
+          console.log('Usuarios recibidos:', usuarios);
+
           tbody.innerHTML = '';
           contador.textContent = `Jugadores registrados: ${usuarios.length}`;
 
@@ -174,10 +182,10 @@
             const div = document.createElement('div');
             div.className = 'card-top3';
             div.innerHTML = `
-              <div class="medalla">${['🥇','🥈','🥉'][i]}</div>
+              <div class="medalla">${['🥈','🥇','🥉'][i]}</div>
               <img src="${u.avatar}" class="avatar" alt="avatar">
               <h3>${u.nombre}</h3>
-              <p>${u.puntos} puntos</p>
+              <p>${ajustarPuntaje(u.puntos)} puntos</p> 
             `;
             podio.appendChild(div);
           });
@@ -201,16 +209,18 @@
               <td>${medalla}</td>
               <td>${u.nombre}</td>
               <td>${u.rol}</td>
-              <td>${u.aciertos}</td>
-              <td>${u.errores}</td>
-              <td>${u.puntos}</td>
-              <td>${u.tiempo_segundos}</td>
+              <td>${u.aciertos || 0}</td>
+              <td>${u.errores || 0}</td>
+              <td>${ajustarPuntaje(u.puntos)}</td>
+              <td>${u.tiempo_segundos || 0}</td>
               <td>${fecha}</td>
             `;
             tbody.appendChild(fila);
           });
 
-          const promedio = Math.round(usuarios.reduce((acc, u) => acc + u.puntos, 0) / usuarios.length);
+          const promedio = Math.round(
+            usuarios.reduce((acc, u) => acc + ajustarPuntaje(u.puntos), 0) / usuarios.length
+          );
           document.getElementById('resumenGeneral').innerHTML =
             `🌟 Promedio general de puntos: <strong>${promedio}</strong>`;
         })

@@ -3,18 +3,86 @@ if (role === "profesor") {
   window.location.href = "panel.html";
 }
 
-const itemsData = [
-  { emoji: "🍌", type: "organico" },
-  { emoji: "🍕", type: "organico" },
-  { emoji: "🧴", type: "reciclable" },
-  { emoji: "📦", type: "reciclable" },
-  { emoji: "🗑️", type: "no-reciclable" },
-  { emoji: "🛢️", type: "no-reciclable" },
-  { emoji: "🍎", type: "organico" },
-  { emoji: "🥤", type: "reciclable" },
-  { emoji: "🚬", type: "no-reciclable" },
-  { emoji: "🥡", type: "reciclable" }
-];
+const nivelActual = parseInt(localStorage.getItem("nivelActual")) || 1;
+
+function obtenerItemsPorNivel(nivel) {
+  const niveles = {
+    1: [
+      { emoji: "🍌", type: "organico" },
+      { emoji: "🍕", type: "organico" },
+      { emoji: "📦", type: "reciclable" },
+      { emoji: "🧴", type: "reciclable" },
+      { emoji: "🗑️", type: "no-reciclable" }
+    ],
+    2: [
+      { emoji: "🍎", type: "organico" },
+      { emoji: "🧅", type: "organico" },
+      { emoji: "🥫", type: "reciclable" },
+      { emoji: "🧃", type: "reciclable" },
+      { emoji: "🧠", type: "no-reciclable" }
+    ],
+    3: [
+      { emoji: "🥩", type: "organico" },
+      { emoji: "🍗", type: "organico" },
+      { emoji: "🧻", type: "reciclable" },
+      { emoji: "📌", type: "reciclable" },
+      { emoji: "🚬", type: "no-reciclable" }
+    ],
+    4: [
+      { emoji: "🍞", type: "organico" },
+      { emoji: "🍧", type: "organico" },
+      { emoji: "🧹", type: "reciclable" },
+      { emoji: "🧺", type: "reciclable" },
+      { emoji: "🪲", type: "no-reciclable" }
+    ],
+    5: [
+      { emoji: "🥕", type: "organico" },
+      { emoji: "🌮", type: "organico" },
+      { emoji: "🪫", type: "reciclable" },
+      { emoji: "🧃", type: "reciclable" },
+      { emoji: "💊", type: "no-reciclable" }
+    ],
+    6: [
+      { emoji: "🍍", type: "organico" },
+      { emoji: "🍓", type: "organico" },
+      { emoji: "🥤", type: "reciclable" },
+      { emoji: "📰", type: "reciclable" },
+      { emoji: "🫸", type: "no-reciclable" }
+    ],
+    7: [
+      { emoji: "🥑", type: "organico" },
+      { emoji: "🥚", type: "organico" },
+      { emoji: "🚢", type: "reciclable" },
+      { emoji: "📚", type: "reciclable" },
+      { emoji: "🦠", type: "no-reciclable" }
+    ],
+    8: [
+      { emoji: "🍉", type: "organico" },
+      { emoji: "🍈", type: "organico" },
+      { emoji: "📄", type: "reciclable" },
+      { emoji: "🧼", type: "reciclable" },
+      { emoji: "🧪", type: "no-reciclable" }
+    ],
+    9: [
+      { emoji: "🥬", type: "organico" },
+      { emoji: "🍠", type: "organico" },
+      { emoji: "🔋", type: "reciclable" },
+      { emoji: "🧊", type: "reciclable" },
+      { emoji: "🫲", type: "no-reciclable" }
+    ],
+    10: [
+      { emoji: "🍇", type: "organico" },
+      { emoji: "🍒", type: "organico" },
+      { emoji: "🔇", type: "reciclable" },
+      { emoji: "📦", type: "reciclable" },
+      { emoji: "🫿", type: "no-reciclable" }
+    ]
+  };
+
+  return niveles[nivel] || niveles[1];
+}
+
+const itemsData = obtenerItemsPorNivel(nivelActual);
 
 let score = 0;
 let errores = 0;
@@ -30,6 +98,8 @@ const itemsContainer = document.getElementById("items");
 const feedback = document.getElementById("feedback");
 const bins = document.querySelectorAll(".bin");
 
+livesDisplay.textContent = "❤️".repeat(lives);
+
 const erroresDisplay = document.createElement("div");
 erroresDisplay.id = "errores";
 erroresDisplay.style.fontWeight = "bold";
@@ -43,7 +113,6 @@ avatar.src = localStorage.getItem("heroAvatar") || "assets/1.png";
 
 cronometro = setInterval(() => tiempo++, 1000);
 
-// Crear ítems en pantalla
 itemsData.forEach((item, index) => {
   const div = document.createElement("div");
   div.className = "item";
@@ -79,26 +148,21 @@ bins.forEach(bin => {
       feedback.style.color = "#d32f2f";
     }
 
-    const puntos = Math.max(0, (score * 10) - (errores * 5));
+    const puntosBase = (score / itemsData.length) * 100;
+    const puntos = Math.max(0, Math.round(puntosBase - (errores * 5)));
     scoreDisplay.textContent = `Puntos: ${puntos}`;
 
-    if (lives === 0 || score === 10) {
-      finalizarPartida();
+    if (lives === 0 || score === itemsData.length) {
+      finalizarPartida(puntos);
     }
   });
 });
 
-function finalizarPartida() {
+function finalizarPartida(puntos) {
   clearInterval(cronometro);
   document.querySelectorAll(".item").forEach(i => i.draggable = false);
 
-  const puntos = Math.max(0, (score * 10) - (errores * 5));
-
-  feedback.innerHTML =
-    score === 10
-      ? `🎉 ¡Has ganado ${puntos} puntos!<br>¡Eres un verdadero EcoHéroe!<br><a href="panel.html">Ver resultados</a>`
-      : `😢 Se acabaron tus vidas o tus intentos.<br>Tu puntuación fue de <strong>${puntos}</strong>.<br><a href="index.html">Volver a intentar</a>`;
-
+  const nivel = nivelActual;
   const usuarioId = Number(localStorage.getItem("usuarioId"));
   if (!usuarioId || isNaN(usuarioId)) {
     console.warn("⚠️ usuarioId no válido. No se enviaron resultados.");
@@ -109,10 +173,9 @@ function finalizarPartida() {
     aciertos: score,
     errores,
     puntos,
-    tiempo_segundos: tiempo
+    tiempo_segundos: tiempo,
+    nivel
   };
-
-  console.log("📤 Enviando resultados:", resultados);
 
   fetch(`http://localhost:5000/api/users/${usuarioId}/resultados`, {
     method: "PUT",
@@ -123,6 +186,22 @@ function finalizarPartida() {
       if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
       return res.json();
     })
-    .then(data => console.log("✅ Resultados enviados correctamente:", data))
-    .catch(err => console.error("❌ Error al enviar resultados:", err));
+    .then(data => {
+      if (score === itemsData.length) {
+        const siguienteNivel = nivelActual + 1;
+        if (siguienteNivel <= 10) {
+          localStorage.setItem("nivelActual", siguienteNivel);
+          feedback.innerHTML = `🎉 ¡Has ganado ${puntos} puntos!<br>Pasando al nivel ${siguienteNivel}...`;
+          setTimeout(() => location.reload(), 2500);
+        } else {
+          feedback.innerHTML = `🏆 ¡Completaste todos los niveles!<br><a href='panel.html'>Ver resultados</a>`;
+        }
+      } else {
+        feedback.innerHTML = `😥 Se acabaron tus vidas o tus intentos.<br>Tu puntuación fue de <strong>${puntos}</strong>.<br><a href='index.html'>Volver a intentar</a>`;
+      }
+    })
+    .catch(err => {
+      console.error("❌ Error al enviar resultados:", err);
+      feedback.innerHTML = `⚠️ Error al guardar resultados.<br>Tu puntuación fue de <strong>${puntos}</strong>.`;
+    });
 }
